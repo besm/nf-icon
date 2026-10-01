@@ -1,57 +1,55 @@
 # nf-icon
 
-Nerd Font glyphs as a freedesktop icon theme, in whatever colours you give it.
+nf-icon builds a freedesktop icon theme from the Nerd Fonts glyphs, in colours
+you choose.
 
-Every glyph is built once per colour in your palette, so GTK icon choosers
-(and anything else that looks icons up by name) can use `nf-fa-book-red`,
-`nf-md-cat-blue`, and so on. Each colour shows up as its own category.
+The theme contains every glyph once per palette colour, under names such as
+`nf-fa-book-red` and `nf-md-cat-blue`. Each colour appears as its own category
+in a GTK icon chooser.
 
-## Use
+## Usage
 
-Build it as-is, with a default eight-colour palette:
+This command builds the theme with the default palette of eight colours:
 
 ```bash
 nix build github:besm/nf-icon
 ```
 
-Or call `lib.mkNerdIconTheme` with your own palette:
+To choose the colours, add the flake as an input and call
+`lib.mkNerdIconTheme`:
 
 ```nix
-{
-  inputs.nf-icon = {
-    url = "github:besm/nf-icon";
-    inputs.nixpkgs.follows = "nixpkgs";
-  };
-
-  outputs = { nixpkgs, nf-icon, ... }: let
-    pkgs = nixpkgs.legacyPackages.x86_64-linux;
-
-    theme = nf-icon.lib.mkNerdIconTheme {
-      inherit pkgs;
-      palette = {
-        red = "#e06c75";
-        green = "#98c379";
-        blue = "#61afef";
-      };
-    };
-  in {
-    # install `theme`, then select the icon theme named "NerdIcons"
-  };
-}
+inputs.nf-icon = {
+  url = "github:besm/nf-icon";
+  inputs.nixpkgs.follows = "nixpkgs";
+};
 ```
 
-| Argument | Default | |
+```nix
+theme = nf-icon.lib.mkNerdIconTheme {
+  inherit pkgs;
+  palette = {
+    red = "#e06c75";
+    green = "#98c379";
+    blue = "#61afef";
+  };
+};
+```
+
+| Argument | Default | Meaning |
 |---|---|---|
-| `pkgs` | required | your nixpkgs |
-| `palette` | eight colours | colour name → 6-digit hex, with or without `#` |
-| `name` | `"NerdIcons"` | the icon theme's name |
-| `inherits` | `"hicolor"` | theme to fall back to for every other icon |
+| `pkgs` | required | The nixpkgs to build with. |
+| `palette` | eight colours | Colour names mapped to 6-digit hex values. |
+| `name` | `"NerdIcons"` | The name of the icon theme. |
+| `inherits` | `"hicolor"` | The theme that supplies all other icons. |
 
-The result installs to `share/icons/<name>`. Icons are named
-`nf-<set>-<glyph>-<colour>`, using the names from the
-[Nerd Fonts cheat sheet](https://www.nerdfonts.com/cheat-sheet).
+The package installs the theme to `share/icons/<name>`. Icons are named
+`nf-<set>-<glyph>-<colour>`, and the
+[Nerd Fonts cheat sheet](https://www.nerdfonts.com/cheat-sheet) lists every
+set and glyph.
 
-With Home Manager, keeping your usual theme for everything else:
+With Home Manager, set `inherits` to the icon theme you already use, so that
+it keeps supplying ordinary icons.
 
 ```nix
 gtk.iconTheme = {
@@ -65,15 +63,17 @@ gtk.iconTheme = {
 
 ## How it works
 
-The theme is one derivation. It reads the Symbols Nerd Font from `pkgs`, takes
-each glyph's outline and name straight from the font, and writes one SVG per
-glyph per colour. Nothing is vendored or downloaded, so the glyphs always match
-the Nerd Fonts release in the nixpkgs you build with.
+The theme is a single derivation. It reads the Symbols Nerd Font from `pkgs`,
+takes each glyph's outline and name from the font, and writes one SVG per glyph
+per colour. Nothing is vendored or downloaded, so the glyphs always match the
+Nerd Fonts release in your nixpkgs.
 
-There are about 10,500 glyphs, so each palette colour adds that many icons.
+The font has about 10,500 glyphs, so each palette colour adds that many icons.
 
 ## Licence
 
-Same terms as [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts): a built
-theme is under the SIL Open Font License 1.1, the code here is MIT, and the
-individual icon sets keep their own licences. See [LICENSE](LICENSE).
+nf-icon uses the same terms as
+[Nerd Fonts](https://github.com/ryanoasis/nerd-fonts). A built theme is under
+the SIL Open Font License 1.1, the code is under the MIT License, and the
+individual icon sets keep their own licences. [LICENSE](LICENSE) has the full
+text.
